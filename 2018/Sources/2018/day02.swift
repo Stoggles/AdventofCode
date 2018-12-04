@@ -7,10 +7,10 @@ func 🗓0️⃣2️⃣_part1(input: String) -> Int {
 
     for id in stringArray {
         var characterCount = [Character: Int]()
-            for character in id {
-                characterCount[character] = (characterCount[character] ?? 0) + 1
-            }
-        
+        for character in id {
+            characterCount[character] = (characterCount[character] ?? 0) + 1
+        }
+
         let counts = Array(characterCount.values)
 
         if counts.contains(2) {
@@ -25,17 +25,16 @@ func 🗓0️⃣2️⃣_part1(input: String) -> Int {
 
 func 🗓0️⃣2️⃣_part2(input: String) -> String {
     let stringArray = input.split(separator: "\n")
-    
+
     for stringIndex1 in 0..<stringArray.count {
         for stringIndex2 in stringIndex1+1..<stringArray.count {
-            let differences = zip(stringArray[stringIndex1], stringArray[stringIndex2]).filter{ $0 != $1 }
+            let differences = zip(stringArray[stringIndex1], stringArray[stringIndex2]).filter{$0 != $1}
 
             if differences.count == 1 {
-                return stringArray[stringIndex1].filter{ $0 != differences[0].0 }
+                return stringArray[stringIndex1].filter{$0 != differences[0].0}
             }
         }
     }
-
     return "failure"
 }
 

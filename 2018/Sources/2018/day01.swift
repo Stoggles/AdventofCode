@@ -3,9 +3,8 @@ import Foundation
 func 🗓0️⃣1️⃣(input: String, part2: Bool) -> Int {
     let valueArray = input.split(separator: "\n").compactMap{Int($0)}
 
-    var sum = 0
-
     if part2 {
+        var sum = 0
         var frequencyCount = [Int: Int]()
 
         frequencyCount[sum] = 1
@@ -21,10 +20,7 @@ func 🗓0️⃣1️⃣(input: String, part2: Bool) -> Int {
             }
         }
     } else {
-        for frequency in valueArray {
-            sum += frequency
-        }
-        return sum
+        return valueArray.reduce(0, +)
     }
 }
 

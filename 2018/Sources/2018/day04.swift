@@ -15,7 +15,7 @@ extension Date {
 }
 
 func 🗓0️⃣4️⃣(input: String, part2: Bool) -> Int {
-    let stringArray = input.split(separator: "\n").compactMap{ String($0) }
+    let stringArray = input.split(separator: "\n").compactMap{String($0)}
     var logEntryArray = [LogEntry]()
 
     let pattern = "^\\[(.*)\\] (.*)$"
@@ -26,10 +26,7 @@ func 🗓0️⃣4️⃣(input: String, part2: Bool) -> Int {
     dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
 
     for string in stringArray {
-        if let match = regex.firstMatch(in: string,
-                                         options: [],
-                                         range: NSRange(location: 0,
-                                                        length: string.utf16.count)) {
+        if let match = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.count)) {
             logEntryArray.append(
                 LogEntry(
                     timestamp: dateFormatter.date(from: String(string[Range(match.range(at: 1), in: string)!]))!,
@@ -39,7 +36,7 @@ func 🗓0️⃣4️⃣(input: String, part2: Bool) -> Int {
         }
     }
 
-    logEntryArray.sort(by: { $0.timestamp < $1.timestamp })
+    logEntryArray.sort(by: {$0.timestamp < $1.timestamp})
 
     let guardNumberRegex = try! NSRegularExpression(pattern: "^Guard #(\\d+) begins shift$")
     let startRegex = try! NSRegularExpression(pattern: "^falls asleep$")
@@ -57,17 +54,17 @@ func 🗓0️⃣4️⃣(input: String, part2: Bool) -> Int {
         if let match = guardNumberRegex.firstMatch(in: event,
                                                     options: [],
                                                     range: NSRange(location: 0,
-                                                                   length: event.utf16.count)) {
+                                                                   length: event.count)) {
             guardNumber = Int(event[Range(match.range(at: 1), in: event)!])!
             continue
         }
 
-        if startRegex.numberOfMatches(in: event, options: [], range: NSRange(location: 0, length: event.utf16.count)) > 0 {
+        if startRegex.numberOfMatches(in: event, options: [], range: NSRange(location: 0, length: event.count)) > 0 {
             startMinute = timestamp.minute
             continue
         }
 
-        if endRegex.numberOfMatches(in: event, options: [], range: NSRange(location: 0, length: event.utf16.count)) > 0 {
+        if endRegex.numberOfMatches(in: event, options: [], range: NSRange(location: 0, length: event.count)) > 0 {
             endMinute = timestamp.minute
             var guardSleepMap = guardMap[guardNumber] ?? [Int: Int]()
             for i in startMinute..<endMinute {
