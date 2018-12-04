@@ -9,7 +9,7 @@ var fabricMap = [Coordinate: Int]()
 var claims = [[Int]]()
 
 func 🗓0️⃣3️⃣(input: String, part2: Bool) -> Int {
-    let stringArray = input.split(separator: "\n").compactMap{ String($0) }
+    let stringArray = input.split(separator: "\n").compactMap{String($0)}
 
     let pattern = "^#(\\d+) @ (\\d+),(\\d+): (\\d+)x(\\d+)$"
     let regex = try! NSRegularExpression(pattern: pattern)

@@ -51,10 +51,7 @@ func 🗓0️⃣4️⃣(input: String, part2: Bool) -> Int {
         let timestamp = logEntryArray[i].timestamp
         let event = logEntryArray[i].event
 
-        if let match = guardNumberRegex.firstMatch(in: event,
-                                                    options: [],
-                                                    range: NSRange(location: 0,
-                                                                   length: event.count)) {
+        if let match = guardNumberRegex.firstMatch(in: event, options: [], range: NSRange(location: 0, length: event.count)) {
             guardNumber = Int(event[Range(match.range(at: 1), in: event)!])!
             continue
         }
