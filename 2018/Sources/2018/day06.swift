@@ -9,7 +9,7 @@ func manhattanDistance(a: Coordinate, b: Coordinate) -> Int {
     return abs(a.x - b.x) + abs(a.y - b.y)
 }
 
-func 🗓0️⃣6️⃣(input: String, part2: Bool, part2region: Int) -> Int {
+func 🗓0️⃣6️⃣(input: String, part2: Bool, part2target: Int) -> Int {
     let stringArray = input.split(separator: "\n").compactMap{String($0)}
 
     let pattern = "^(\\d+), (\\d+)$"
@@ -29,12 +29,13 @@ func 🗓0️⃣6️⃣(input: String, part2: Bool, part2region: Int) -> Int {
         coordinateMap[i] = Coordinate(x: x, y: y)
     }
 
-    let xMin = coordinateMap.min{a, b in a.value.x < b.value.x}!.value.x
-    let xMax = coordinateMap.max{a, b in a.value.x < b.value.x}!.value.x
-    let yMin = coordinateMap.min{a, b in a.value.y < b.value.y}!.value.y
-    let yMax = coordinateMap.max{a, b in a.value.y < b.value.y}!.value.y
+    let xMin = coordinateMap.min{a, b in a.value.x < b.value.x}!.value.x - 1
+    let xMax = coordinateMap.max{a, b in a.value.x < b.value.x}!.value.x + 1
+    let yMin = coordinateMap.min{a, b in a.value.y < b.value.y}!.value.y - 1
+    let yMax = coordinateMap.max{a, b in a.value.y < b.value.y}!.value.y + 1
 
     var grid = [Coordinate: Int]()
+
     for x in xMin..<xMax {
         for y in yMin..<yMax {
             let coord = Coordinate(x: x, y: y)
@@ -63,17 +64,36 @@ func 🗓0️⃣6️⃣(input: String, part2: Bool, part2region: Int) -> Int {
         }
     }
 
+    var edgeValues = Set<Int>()
+    for x in xMin..<xMax {
+        if grid[Coordinate(x: x, y: yMin)] != nil {
+            edgeValues.insert(grid[Coordinate(x: x, y: yMin)]!)
+        }
+        if grid[Coordinate(x: x, y: yMax - 1)] != nil {
+            edgeValues.insert(grid[Coordinate(x: x, y: yMax - 1)]!)
+        }
+    }
+    for y in yMin..<yMax {
+        if grid[Coordinate(x: xMin, y: y)] != nil {
+            edgeValues.insert(grid[Coordinate(x: xMin, y: y)]!)
+        }
+        if grid[Coordinate(x: xMax - 1, y: y)] != nil {
+            edgeValues.insert(grid[Coordinate(x: xMax - 1, y: y)]!)
+        }
+    }
+    grid = grid.filter{!edgeValues.contains($0.value)}
+
     if part2 {
-        return grid.values.filter{ $0 < part2region}.count
+        return grid.values.filter{$0 < part2target}.count
     } else {
         return grid.values.reduce(into: [:]){$0[$1, default: 0] += 1}.values.max()!
     }
 }
 
 let testData = "1, 1\n1, 6\n8, 3\n3, 4\n5, 5\n8, 9"
-assert(🗓0️⃣6️⃣(input: testData, part2: false, part2region: 0) == 17)
-assert(🗓0️⃣6️⃣(input: testData, part2: true, part2region: 32) == 16)
+assert(🗓0️⃣6️⃣(input: testData, part2: false, part2target: 0) == 17)
+assert(🗓0️⃣6️⃣(input: testData, part2: true, part2target: 32) == 16)
 
 let input = try String(contentsOfFile: "input06.txt")
-print("🌟 :", 🗓0️⃣6️⃣(input: input, part2: false, part2region: 0))
-print("🌟 :", 🗓0️⃣6️⃣(input: input, part2: true, part2region: 10000))
+print("🌟 :", 🗓0️⃣6️⃣(input: input, part2: false, part2target: 0))
+print("🌟 :", 🗓0️⃣6️⃣(input: input, part2: true, part2target: 10000))
