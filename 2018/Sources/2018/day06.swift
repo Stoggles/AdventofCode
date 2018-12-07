@@ -57,28 +57,17 @@ func 🗓0️⃣6️⃣(input: String, part2: Bool, part2target: Int) -> Int {
             }
             if part2 {
                 grid[coord] = sum
-            } else {
-                grid[coord] = tie ? nil : closestCoord
+            } else if !tie {
+                grid[coord] = closestCoord
             }
 
         }
     }
 
     var edgeValues = Set<Int>()
-    for x in xMin..<xMax {
-        if grid[Coordinate(x: x, y: yMin)] != nil {
-            edgeValues.insert(grid[Coordinate(x: x, y: yMin)]!)
-        }
-        if grid[Coordinate(x: x, y: yMax - 1)] != nil {
-            edgeValues.insert(grid[Coordinate(x: x, y: yMax - 1)]!)
-        }
-    }
-    for y in yMin..<yMax {
-        if grid[Coordinate(x: xMin, y: y)] != nil {
-            edgeValues.insert(grid[Coordinate(x: xMin, y: y)]!)
-        }
-        if grid[Coordinate(x: xMax - 1, y: y)] != nil {
-            edgeValues.insert(grid[Coordinate(x: xMax - 1, y: y)]!)
+    for (coord, value) in grid {
+        if coord.x == xMin || coord.x == (xMax - 1) || coord.y == yMin || coord.y == (yMax - 1) {
+            edgeValues.insert(value)
         }
     }
     grid = grid.filter{!edgeValues.contains($0.value)}
