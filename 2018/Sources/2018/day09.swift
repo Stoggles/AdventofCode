@@ -1,17 +1,17 @@
 import Foundation
 
-public final class LinkedList<T> {
+public final class CircularList<T> {
 
-    public class LinkedListNode<T> {
+    public class CircularListNode<T> {
         var value: T
-        var next: LinkedListNode?
-        var previous: LinkedListNode?
+        var next: CircularListNode?
+        var previous: CircularListNode?
 
         public init(value: T) {
             self.value = value
         }
 
-        public func forward(steps: Int) -> LinkedListNode {
+        public func forward(steps: Int) -> CircularListNode {
             var node = self
             for _ in 0..<steps {
                 node = node.next!
@@ -20,7 +20,7 @@ public final class LinkedList<T> {
             return node
         }
 
-        public func backward(steps: Int) -> LinkedListNode {
+        public func backward(steps: Int) -> CircularListNode {
             var node = self
             for _ in 0..<steps {
                 node = node.previous!
@@ -30,9 +30,7 @@ public final class LinkedList<T> {
         }
     }
 
-    public init() {}
-
-    public typealias Node = LinkedListNode<T>
+    public typealias Node = CircularListNode<T>
 
     private(set) var head: Node?
 
@@ -120,7 +118,7 @@ func 🗓0️⃣9️⃣(input: String, part2: Bool) -> Int {
     }
 
     var scores = [Int: Int]()
-    let circle = LinkedList<Int>()
+    let circle = CircularList<Int>()
     circle.append(0)
     var current_marble_pointer = circle.head!
 
