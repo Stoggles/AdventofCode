@@ -25,12 +25,12 @@ func 🗓1️⃣1️⃣(serialNumber: Int, part2: Bool) -> [Int] {
     var maxTotalPower = 0
     var maxTotalX = Int.min, maxTotalY = Int.min, maxTotalSampleSize = Int.min
     for sampleSize in minSampleSize..<maxSampleSize {
-        for x in 1..<301 {
-            for y in 1..<301 {
+        for x in sampleSize..<301 {
+            for y in sampleSize..<301 {
                 let localTotalPower = summedAreaGrid[x][y]
-                                    - summedAreaGrid[max(x - sampleSize, 0)][y]
-                                    - summedAreaGrid[x][max(y - sampleSize, 0)]
-                                    + summedAreaGrid[max(x - sampleSize, 0)][max(y - sampleSize, 0)]
+                                    - summedAreaGrid[x - sampleSize][y]
+                                    - summedAreaGrid[x][y - sampleSize]
+                                    + summedAreaGrid[x - sampleSize][y - sampleSize]
                 if localTotalPower > maxTotalPower {
                     maxTotalPower = localTotalPower
                     maxTotalX = x - sampleSize + 1; maxTotalY = y - sampleSize + 1; maxTotalSampleSize = sampleSize
