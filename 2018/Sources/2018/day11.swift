@@ -1,79 +1,62 @@
 import Foundation
 
-struct Coordinate: Hashable {
-    var x: Int
-    var y: Int
-    var sampleSize: Int?
-
-    init(_ x: Int, _ y: Int) {
-        self.x = x
-        self.y = y
-    }
-
-    init(_ x: Int, _ y: Int, _ sampleSize: Int) {
-        self.x = x
-        self.y = y
-        self.sampleSize = sampleSize
-    }
+func powerLevel(x: Int, y: Int, serialNumber: Int) -> Int {
+    let rackId = x + 10
+    return (rackId * y + serialNumber) * rackId / 100 % 10 - 5
 }
 
-func powerLevel(coord: Coordinate, serialNumber: Int) -> Int {
-    let rackId = coord.x + 10
-    return (rackId * coord.y + serialNumber) * rackId / 100 % 10 - 5
-}
-
-func 🗓1️⃣1️⃣(serialNumber: Int, part2: Bool) -> Coordinate {
-    var summedAreaGrid = [Coordinate: Int]()
+func 🗓1️⃣1️⃣(serialNumber: Int, part2: Bool) -> [Int] {
+    var summedAreaGrid = Array(repeating: Array(repeating: 0, count: 301), count: 301)
 
     for x in 1..<301 {
         for y in 1..<301 {
-            let coord = Coordinate(x, y)
-            var summedArea = powerLevel(coord: coord, serialNumber: serialNumber)
-            summedArea += (summedAreaGrid[Coordinate(x, y - 1)] ?? 0)
-            summedArea += (summedAreaGrid[Coordinate(x - 1, y)] ?? 0)
-            summedArea -= (summedAreaGrid[Coordinate(x - 1, y - 1)] ?? 0)
-            summedAreaGrid[coord] = summedArea
+            summedAreaGrid[x][y] = powerLevel(x: x, y: y, serialNumber: serialNumber)
+                                 + summedAreaGrid[x][y - 1]
+                                 + summedAreaGrid[x - 1][y]
+                                 - summedAreaGrid[x - 1][y - 1]
         }
     }
 
-    var minSampleSize = 3
-    var maxSampleSize = 4
+    var minSampleSize = 3, maxSampleSize = 4
     if part2 {
-        minSampleSize = 1
-        maxSampleSize = 301
+        minSampleSize = 1; maxSampleSize = 301
     }
 
     var maxTotalPower = 0
-    var maxCoordinate = Coordinate(0, 0)
+    var maxTotalX = Int.min, maxTotalY = Int.min, maxTotalSampleSize = Int.min
     for sampleSize in minSampleSize..<maxSampleSize {
         for x in 1..<301 {
             for y in 1..<301 {
-                var localTotalPower = 0
-                localTotalPower += (summedAreaGrid[Coordinate(x, y)] ?? 0)
-                localTotalPower -= (summedAreaGrid[Coordinate(x - sampleSize, y)] ?? 0)
-                localTotalPower -= (summedAreaGrid[Coordinate(x, y - sampleSize)] ?? 0)
-                localTotalPower += (summedAreaGrid[Coordinate(x - sampleSize, y - sampleSize)] ?? 0)
+                let localTotalPower = summedAreaGrid[x][y]
+                                    - summedAreaGrid[max(x - sampleSize, 0)][y]
+                                    - summedAreaGrid[x][max(y - sampleSize, 0)]
+                                    + summedAreaGrid[max(x - sampleSize, 0)][max(y - sampleSize, 0)]
                 if localTotalPower > maxTotalPower {
                     maxTotalPower = localTotalPower
-                    maxCoordinate = Coordinate(x - sampleSize + 1, y - sampleSize + 1, sampleSize)
+                    maxTotalX = x - sampleSize + 1; maxTotalY = y - sampleSize + 1; maxTotalSampleSize = sampleSize
                 }
             }
         }
     }
 
-    return maxCoordinate
+    if part2 {
+        return [maxTotalX, maxTotalY, maxTotalSampleSize]
+    } else {
+        return [maxTotalX, maxTotalY]
+    }
+
 }
 
-assert(powerLevel(coord: Coordinate(3, 5), serialNumber: 8) == 4)
-assert(powerLevel(coord: Coordinate(122, 79), serialNumber: 57) == -5)
-assert(powerLevel(coord: Coordinate(217, 196), serialNumber: 39) == 0)
-assert(powerLevel(coord: Coordinate(101, 153), serialNumber: 71) == 4)
+assert(powerLevel(x: 3, y: 5, serialNumber: 8) == 4)
+assert(powerLevel(x: 122, y: 79, serialNumber: 57) == -5)
+assert(powerLevel(x: 217, y: 196, serialNumber: 39) == 0)
+assert(powerLevel(x: 101, y: 153, serialNumber: 71) == 4)
 
-assert(🗓1️⃣1️⃣(serialNumber: 18, part2: false) == Coordinate(33, 45, 3))
-assert(🗓1️⃣1️⃣(serialNumber: 42, part2: false) == Coordinate(21, 61, 3))
+assert(🗓1️⃣1️⃣(serialNumber: 18, part2: false) == [33, 45])
+assert(🗓1️⃣1️⃣(serialNumber: 42, part2: false) == [21, 61])
 
-assert(🗓1️⃣1️⃣(serialNumber: 18, part2: true) == Coordinate(90, 269, 16))
-assert(🗓1️⃣1️⃣(serialNumber: 42, part2: true) == Coordinate(232, 251, 12))
+assert(🗓1️⃣1️⃣(serialNumber: 18, part2: true) == [90, 269, 16])
+assert(🗓1️⃣1️⃣(serialNumber: 42, part2: true) == [232, 251, 12])
 
 let input = 3628
 print("🌟 :", 🗓1️⃣1️⃣(serialNumber: input, part2: false))
