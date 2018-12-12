@@ -44,7 +44,6 @@ func 🗓1️⃣1️⃣(serialNumber: Int, part2: Bool) -> [Int] {
     } else {
         return [maxTotalX, maxTotalY]
     }
-
 }
 
 assert(powerLevel(x: 3, y: 5, serialNumber: 8) == 4)
