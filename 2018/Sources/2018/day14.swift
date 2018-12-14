@@ -30,7 +30,7 @@ func 🗓1️⃣4️⃣(input: String, part2: Bool) -> String {
                 return String(scoreArray.count - inputIntArray.count - 1)
             }
         } else if i == inputInt+10 {
-            return Array(scoreArray[inputInt..<inputInt+10]).compactMap{String(Int($0))}.joined()
+            return scoreArray[inputInt..<inputInt+10].compactMap{String($0)}.joined()
         }
         i += 1
     }
