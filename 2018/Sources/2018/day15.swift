@@ -1,5 +1,9 @@
 import Foundation
 
+func getCurrentMillis()->Int64{
+    return  Int64(NSDate().timeIntervalSince1970 * 1000)
+}
+
 struct Point: Hashable {
     var x: Int
     var y: Int
@@ -27,13 +31,13 @@ struct Actor {
     let type: ActorType
     var position: Point
     var hitPoints: Int
-    var attackPower: Int
+    let attackPower: Int
 
-    public init(_ type: ActorType, _ position: Point) {
+    public init(_ type: ActorType, _ position: Point, _ attackPower: Int = 3) {
         self.type = type
         self.position = position
         self.hitPoints = 200
-        self.attackPower = 3
+        self.attackPower = attackPower
     }
 
     var isAlive: Bool {
@@ -64,15 +68,7 @@ func parseInput(input: String, map: inout [Point: Character], actorList: inout [
     }
 }
 
-func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
-    var map = [Point: Character]()
-    var actorList = [Actor]()
-
-    parseInput(input: input, map: &map, actorList: &actorList)
-
-    print(actorList.filter{$0.type == ActorType.elf}.count, "elves")
-    print(actorList.filter{$0.type == ActorType.goblin}.count, "goblins")
-
+func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
     var turn = 0
     while true {
         actorList.sort{
@@ -88,12 +84,15 @@ func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
                 continue
             }
 
+            let startTime = getCurrentMillis()
+
             let targetPositionArray = actorList.filter{$0.type != actorList[i].type && $0.isAlive}.map{$0.position}
-            var visitedPositionArray = actorList.filter{$0.isAlive}.map{$0.position} // add the positions of all alive actors to prevent those points being valid
+            let currentActorPositions = actorList.filter{$0.isAlive}.map{$0.position}
             var metaMap = [Point: Point]()
-            var steps = [(Int, Point)]()
             var potentialDestinations = [Point]()
             var maxDepth = Int.max
+
+            var steps = [(Int, Point)]()
             steps.append((0, actorList[i].position))
 
             // success
@@ -104,7 +103,6 @@ func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
             route: while steps.count > 0 {
                 let (currentDepth, currentStep) = steps.remove(at: 0)
 
-                // if this step is deeper than an existing solution...
                 if currentDepth > maxDepth {
                     continue
                 }
@@ -115,22 +113,17 @@ func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
                     if targetPositionArray.contains(target) {
                         maxDepth = currentDepth
                         potentialDestinations.append(currentStep)
+                        continue route
                     }
                 }
 
-                //print("generate next steps")
-                visitedPositionArray.append(currentStep)
                 for (x, y) in zip([0, -1, 1, 0], [-1, 0, 0, 1]) {
                     let newStep = Point(currentStep.x + x, currentStep.y + y)
-                    if map[newStep] == nil || visitedPositionArray.contains(newStep) {
+                    if map[newStep] == nil || currentActorPositions.contains(newStep) || metaMap[newStep] != nil {
                         continue
                     }
 
-                    // only update the metamap if we have not got here via any another route
-                    if metaMap[newStep] == nil {
-                        metaMap[newStep] = currentStep
-                    }
-
+                    metaMap[newStep] = currentStep
                     steps.append((currentDepth + 1, newStep))
                 }
             }
@@ -160,7 +153,10 @@ func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
                 actorList[i].position = (route.last ?? actorList[i].position)
             }
 
-            print(i, actorList[i].type, actorList[i].position, route.first)
+            let endTime = getCurrentMillis()
+            if (endTime - startTime > 100) {
+                print(endTime - startTime, "ms")
+            }
 
             // find all potential target indicies adjacent to the currnet position
             var targetIndicies = actorList.indices.filter{
@@ -181,15 +177,20 @@ func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
                 }
 
                 actorList[targetIndicies[0]].hitPoints -= actorList[i].attackPower
-                if actorList[targetIndicies[0]].hitPoints <= 0 {
-                    print("\(actorList[targetIndicies[0]].type) dies")
-                }
             }
         }
 
         turn += 1
-        print(turn)
     }
+}
+
+func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
+    var map = [Point: Character]()
+    var actorList = [Actor]()
+
+    parseInput(input: input, map: &map, actorList: &actorList)
+
+    return simulate(map: map, actorList: &actorList)
 }
 
 let testData = "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######"
@@ -207,4 +208,4 @@ assert(🗓1️⃣5️⃣(input: testData6, part2: false) == 18740)
 
 let input = try String(contentsOfFile: "input15.txt")
 print("🌟 :", 🗓1️⃣5️⃣(input: input, part2: false))
-//print("🌟 :", 🗓1️⃣5️⃣(input: input, part2: true))
+// print("🌟 :", 🗓1️⃣5️⃣(input: input, part2: true))
