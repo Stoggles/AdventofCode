@@ -1,9 +1,5 @@
 import Foundation
 
-func getCurrentMillis()->Int64{
-    return  Int64(NSDate().timeIntervalSince1970 * 1000)
-}
-
 struct Point: Hashable {
     var x: Int
     var y: Int
@@ -16,10 +12,6 @@ struct Point: Hashable {
     static func +(left: Point, right: Point) -> Point {
         return Point(left.x + right.x, left.y + right.y)
     }
-}
-
-func pointDistance(_ left: Point, _ right: Point) -> Int {
-    return abs(left.x - right.x) + abs(left.y - right.y)
 }
 
 enum ActorType {
@@ -45,8 +37,14 @@ struct Actor {
     }
 }
 
-func parseInput(input: String, map: inout [Point: Character], actorList: inout [Actor]) {
+func pointDistance(_ left: Point, _ right: Point) -> Int {
+    return abs(left.x - right.x) + abs(left.y - right.y)
+}
+
+func parseInput(input: String, map: inout [Point: Character], actorList: inout [Actor], elfAttackPower: Int) {
     let stringArray = input.split(separator: "\n").map{String($0)}
+
+    actorList.removeAll()
 
     for y in 0..<stringArray.count {
         for x in 0..<stringArray[y].count {
@@ -55,7 +53,7 @@ func parseInput(input: String, map: inout [Point: Character], actorList: inout [
                 case "#": // remove the impassable space
                     continue
                 case "E":
-                    actorList.append(Actor(ActorType.elf, Point(x, y)))
+                    actorList.append(Actor(ActorType.elf, Point(x, y), elfAttackPower))
                     char = "."
                 case "G":
                     actorList.append(Actor(ActorType.goblin, Point(x, y)))
@@ -68,7 +66,7 @@ func parseInput(input: String, map: inout [Point: Character], actorList: inout [
     }
 }
 
-func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
+func simulate(map: [Point: Character], actorList: inout [Actor], part2: Bool) -> Int {
     var turn = 0
     while true {
         actorList.sort{
@@ -84,19 +82,16 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
                 continue
             }
 
-            let startTime = getCurrentMillis()
-
-            let targetPositionArray = actorList.filter{$0.type != actorList[i].type && $0.isAlive}.map{$0.position}
+            let targetPositions = actorList.filter{$0.type != actorList[i].type && $0.isAlive}.map{$0.position}
             let currentActorPositions = actorList.filter{$0.isAlive}.map{$0.position}
+            var destinationPositions = [Point]()
             var metaMap = [Point: Point]()
-            var potentialDestinations = [Point]()
             var maxDepth = Int.max
-
             var steps = [(Int, Point)]()
             steps.append((0, actorList[i].position))
 
             // success
-            if targetPositionArray.isEmpty {
+            if targetPositions.isEmpty {
                 return turn * actorList.filter{$0.isAlive}.map{$0.hitPoints}.reduce(0, +)
             }
 
@@ -110,9 +105,9 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
                 // check if the actor is in range of a target
                 for (x, y) in zip([0, -1, 1, 0], [-1, 0, 0, 1]) {
                     let target = Point(currentStep.x + x, currentStep.y + y)
-                    if targetPositionArray.contains(target) {
+                    if targetPositions.contains(target) {
                         maxDepth = currentDepth
-                        potentialDestinations.append(currentStep)
+                        destinationPositions.append(currentStep)
                         continue route
                     }
                 }
@@ -128,7 +123,7 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
                 }
             }
 
-            potentialDestinations.sort{
+            destinationPositions.sort{
                 if $0.y != $1.y {
                     return $0.y < $1.y
                 } else {
@@ -138,8 +133,8 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
 
             // route building
             var route = [Point]()
-            if potentialDestinations.count > 0 {
-                var step = potentialDestinations[0]
+            if destinationPositions.count > 0 {
+                var step = destinationPositions[0]
                 route.append(step)
                 // builds the route backwards
                 while metaMap[step] != actorList[i].position {
@@ -151,11 +146,6 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
                     }
                 }
                 actorList[i].position = (route.last ?? actorList[i].position)
-            }
-
-            let endTime = getCurrentMillis()
-            if (endTime - startTime > 100) {
-                print(endTime - startTime, "ms")
             }
 
             // find all potential target indicies adjacent to the currnet position
@@ -177,9 +167,11 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
                 }
 
                 actorList[targetIndicies[0]].hitPoints -= actorList[i].attackPower
+                if part2 && actorList[targetIndicies[0]].type == ActorType.elf && actorList[targetIndicies[0]].hitPoints <= 0 {
+                    return -1
+                }
             }
         }
-
         turn += 1
     }
 }
@@ -187,10 +179,21 @@ func simulate(map: [Point: Character], actorList: inout [Actor]) -> Int {
 func 🗓1️⃣5️⃣(input: String, part2: Bool) -> Int {
     var map = [Point: Character]()
     var actorList = [Actor]()
+    var elfAttackPower = part2 ? 4 : 3
 
-    parseInput(input: input, map: &map, actorList: &actorList)
+    parseInput(input: input, map: &map, actorList: &actorList, elfAttackPower: elfAttackPower)
 
-    return simulate(map: map, actorList: &actorList)
+    if part2 {
+        var result = simulate(map: map, actorList: &actorList, part2: true)
+        while result == -1 {
+            elfAttackPower += 1
+            parseInput(input: input, map: &map, actorList: &actorList, elfAttackPower: elfAttackPower)
+            result = simulate(map: map, actorList: &actorList, part2: true)
+        }
+        return result
+    } else {
+        return simulate(map: map, actorList: &actorList, part2: false)
+    }
 }
 
 let testData = "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######"
@@ -199,6 +202,7 @@ let testData3 = "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######"
 let testData4 = "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######"
 let testData5 = "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######"
 let testData6 = "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########"
+
 assert(🗓1️⃣5️⃣(input: testData, part2: false) == 27730)
 assert(🗓1️⃣5️⃣(input: testData2, part2: false) == 36334)
 assert(🗓1️⃣5️⃣(input: testData3, part2: false) == 39514)
@@ -206,6 +210,12 @@ assert(🗓1️⃣5️⃣(input: testData4, part2: false) == 27755)
 assert(🗓1️⃣5️⃣(input: testData5, part2: false) == 28944)
 assert(🗓1️⃣5️⃣(input: testData6, part2: false) == 18740)
 
+assert(🗓1️⃣5️⃣(input: testData, part2: true) == 4988)
+assert(🗓1️⃣5️⃣(input: testData3, part2: true) == 31284)
+assert(🗓1️⃣5️⃣(input: testData4, part2: true) == 3478)
+assert(🗓1️⃣5️⃣(input: testData5, part2: true) == 6474)
+assert(🗓1️⃣5️⃣(input: testData6, part2: true) == 1140)
+
 let input = try String(contentsOfFile: "input15.txt")
 print("🌟 :", 🗓1️⃣5️⃣(input: input, part2: false))
-// print("🌟 :", 🗓1️⃣5️⃣(input: input, part2: true))
+print("🌟 :", 🗓1️⃣5️⃣(input: input, part2: true))
