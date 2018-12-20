@@ -14,6 +14,86 @@ struct Point: Hashable {
     }
 }
 
+func waterRecursion(startPoint: Point, map: inout [Point: Character]) {
+    let yMin = map.keys.sorted{$0.y < $1.y}[0].y
+    let yMax = map.keys.sorted{$0.y > $1.y}[0].y
+
+    var currentPoint = startPoint
+    var count = map.keys.filter({$0.y >= yMin && $0.y <= yMax}).map({map[$0]}).filter({["|", "~"].contains($0)}).count
+
+    outer: while true {
+        // skip down until we hit a surface
+        while map[currentPoint + Point(0, 1)] == nil ||  map[currentPoint + Point(0, 1)] == "|" {
+            if currentPoint.y > yMax {
+                break outer
+            }
+            map[currentPoint] = "|"
+            currentPoint = currentPoint + Point(0, 1)
+        }
+
+        print(currentPoint)
+
+        if ["#", "~"].contains(map[currentPoint + Point(0, 1)]) {
+            var leftWall = false
+            var leftWallPosition = 1
+            while true {
+                if map[currentPoint + Point(-leftWallPosition, 0)] == "#" {
+                    leftWall = true
+                    break
+                } else if ["#", "~"].contains(map[currentPoint + Point(-leftWallPosition, 1)]) {
+                    map[currentPoint + Point(-leftWallPosition, 0)] = "|"
+                    leftWallPosition += 1
+                } else {
+                    map[currentPoint + Point(-leftWallPosition, 0)] = "|"
+                    waterRecursion(startPoint: currentPoint + Point(-leftWallPosition, 0), map: &map)
+                    break
+                }
+            }
+
+            var rightWall = false
+            var rightWallPosition = 1
+            while true {
+                if map[currentPoint + Point(rightWallPosition, 0)] == "#" {
+                    rightWall = true
+                    break
+                } else if ["#", "~"].contains(map[currentPoint + Point(rightWallPosition, 1)]) {
+                    map[currentPoint + Point(rightWallPosition, 0)] = "|"
+                    rightWallPosition += 1
+                } else {
+                    map[currentPoint + Point(rightWallPosition, 0)] = "|"
+                    waterRecursion(startPoint: currentPoint + Point(rightWallPosition, 0), map: &map)
+                    break
+                }
+            }
+
+            if leftWall && rightWall {
+                for x in -leftWallPosition+1...rightWallPosition-1 {
+                    map[currentPoint + Point(x, 0)] = "~"
+                }
+            }
+            // start again
+            currentPoint = startPoint
+        }
+
+        // for y in 0...yMax {
+        //     for x in 490...510 {
+        //         print(map[Point(x, y)] ?? ".", separator: "", terminator:"")
+        //     }
+        //     print("")
+        // }
+        // print("")
+        // sleep(1)
+
+        let newCount = map.keys.filter({$0.y >= yMin && $0.y <= yMax}).map({map[$0]}).filter({["|", "~"].contains($0)}).count
+        if newCount > count {
+            count = newCount
+            continue
+        } else {
+            break
+        }
+    }
+}
+
 func 🗓1️⃣7️⃣(input: String, part2: Bool) -> Int {
     let stringArray = input.split(separator: "\n").compactMap{String($0)}
 
@@ -44,17 +124,14 @@ func 🗓1️⃣7️⃣(input: String, part2: Bool) -> Int {
 
     map[Point(500,0)] = "+"
 
-    var previousWetTileCount = 0
-    // while true {
+    waterRecursion(startPoint: Point(500, 1), map: &map)
 
-    // }
-
-    return 57
+    return map.keys.filter({$0.y >= yMin && $0.y <= yMax}).map({map[$0]}).filter({["|", "~"].contains($0)}).count
 }
 
 let testData = "x=495, y=2..7\ny=7, x=495..501\nx=501, y=3..7\nx=498, y=2..4\nx=506, y=1..2\nx=498, y=10..13\nx=504, y=10..13\ny=13, x=498..504"
 assert(🗓1️⃣7️⃣(input: testData, part2: false) == 57)
 
-// let input = try String(contentsOfFile: "input17.txt")
+let input = try String(contentsOfFile: "input17.txt")
 // print("🌟 :", 🗓1️⃣7️⃣(input: input, part2: false))
 // print("🌟 :", 🗓1️⃣7️⃣_part2(input: input))
