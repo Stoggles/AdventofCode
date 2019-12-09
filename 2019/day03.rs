@@ -2,24 +2,40 @@ use std::cmp;
 use std::collections::HashMap;
 
 
-fn populate_grid(input: &str) -> HashMap<(i32, i32), i32> {
+fn parse_instructions(input: &str) -> Vec<Vec<(&str, i32)>> {
+    let mut instructions = Vec::new();
+
+    for wire in input.lines() {
+        let mut wire_instructions: Vec<(&str, i32)> = Vec::new();
+
+        for instruction in wire.split(",") {
+            let (direction, distance_str) = instruction.split_at(1);
+
+            wire_instructions.push((direction, distance_str.parse().unwrap()));
+        }
+
+        instructions.push(wire_instructions);
+    }
+
+    return instructions;
+}
+
+fn populate_grid(instructions: &Vec<Vec<(&str, i32)>>) -> HashMap<(i32, i32), i32> {
     let mut grid: HashMap<(i32, i32), i32> = HashMap::new();
 
     let mut wire_count = 0;
 
-    for wire in input.lines() {
+    for wire in instructions {
         let mut x = 0;
         let mut y = 0;
 
         wire_count += 1;
 
-        for instruction in wire.split(",") {
-            let (direction, distance_str) = instruction.split_at(1);
-
-            let mut distance: i32 = distance_str.parse().unwrap();
+        for instruction in wire {
+            let mut distance = instruction.1;
 
             while distance > 0 {
-                match direction {
+                match instruction.0 {
                     "U" => y += 1,
                     "D" => y -= 1,
                     "L" => x -= 1,
@@ -37,22 +53,20 @@ fn populate_grid(input: &str) -> HashMap<(i32, i32), i32> {
     return grid;
 }
 
-fn steps_to_point(input: &str, coords: (i32, i32)) -> i32 {
+fn steps_to_point(instructions: &Vec<Vec<(&str, i32)>>, coords: (i32, i32)) -> i32 {
     let mut total_steps = 0;
 
-    'outer: for wire in input.lines() {
+    'outer: for wire in instructions {
         let mut x = 0;
         let mut y = 0;
 
         let mut steps = 0;
 
-        for instruction in wire.split(",") {
-            let (direction, distance_str) = instruction.split_at(1);
-
-            let mut distance: i32 = distance_str.parse().unwrap();
+        for instruction in wire {
+            let mut distance = instruction.1;
 
             while distance > 0 {
-                match direction {
+                match instruction.0 {
                     "U" => y += 1,
                     "D" => y -= 1,
                     "L" => x -= 1,
@@ -75,7 +89,8 @@ fn steps_to_point(input: &str, coords: (i32, i32)) -> i32 {
 }
 
 fn part1(input: &str) -> i32 {
-    let grid = populate_grid(input);
+    let instructions = parse_instructions(&input);
+    let grid = populate_grid(&instructions);
 
     let mut distance = i32::max_value();
 
@@ -89,13 +104,14 @@ fn part1(input: &str) -> i32 {
 }
 
 fn part2(input: &str) -> i32 {
-    let grid = populate_grid(input);
+    let instructions = parse_instructions(&input);
+    let grid = populate_grid(&instructions);
 
     let mut distance = i32::max_value();
 
     for (coords, value) in &grid {
         if *value == 3 {
-            distance = cmp::min(steps_to_point(input, *coords), distance);
+            distance = cmp::min(steps_to_point(&instructions, *coords), distance);
         }
     }
 
