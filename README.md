@@ -7,3 +7,4 @@ Languages used:
 * 2016: Perl
 * 2017: Go
 * 2018: Swift
+* 2019: Rust
