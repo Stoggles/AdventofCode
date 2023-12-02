@@ -1,6 +1,6 @@
 # Advent of Code
 
-Implementations for all the current [Advent of Code](https://adventofcode.com/2018) challenges.
+Personal implementations for the [Advent of Code](https://adventofcode.com/) 🎄 challenges.
 
 Languages used:
 * 2015: Python
@@ -8,3 +8,4 @@ Languages used:
 * 2017: Go
 * 2018: Swift
 * 2019: Rust
+* 2023: Rust (again)
