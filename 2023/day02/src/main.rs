@@ -1,72 +1,53 @@
 use std::collections::HashMap;
 
 fn parse(input: &str) -> HashMap<u32, (u32, u32, u32)> {
-    let mut game_map: HashMap<u32, (u32, u32, u32)> = HashMap::new();
+    return input.lines()
+                .filter(|line: &&str| !line.is_empty())
+                .map(|line: &str| {
+                    let mut segments = line.trim().split(": ");
 
-    for line in input.lines().map(|s: &str| s.trim()) {
-        if line.is_empty() {
-            continue;
-        }
+                    let game_number: u32 = segments.next().unwrap().split(" ").last().unwrap().parse::<u32>().unwrap();
 
-        let mut segments = line.split(": ");
+                    let mut game_values: (u32, u32, u32) = (0, 0, 0);
 
-        let game_number = segments.next().unwrap().split(" ").last().unwrap().parse::<u32>().unwrap();
-
-        let mut red = 0;
-        let mut blue = 0;
-        let mut green = 0;
-
-        for game in segments.next().unwrap().split("; ") {
-            for colour_segment in game.split(", ") {
-                let mut digit_segments = colour_segment.split(" ");
-                let digit = digit_segments.next().unwrap().parse::<u32>().unwrap();
-                let colour = digit_segments.next().unwrap();
-                match colour {
-                    "red" => if digit > red {
-                        red = digit;
-                    },
-                    "blue" => if digit > blue {
-                        blue = digit;
-                    },
-                    "green" => if digit > green {
-                        green = digit;
-                    },
-                    &_ => panic!(),
-                }
-            }
-        }
-
-        game_map.insert(game_number, (red, green, blue));
-    }
-
-    return game_map;
+                    for game in segments.next().unwrap().split("; ") {
+                        for colour_segment in game.split(", ") {
+                            let mut digit_segments = colour_segment.split(" ");
+                            let digit: u32 = digit_segments.next().unwrap().parse::<u32>().unwrap();
+                            let colour: &str = digit_segments.next().unwrap();
+                            match colour {
+                                "red" => if digit > game_values.0 {
+                                    game_values.0 = digit;
+                                },
+                                "blue" => if digit > game_values.1 {
+                                    game_values.1 = digit;
+                                },
+                                "green" => if digit > game_values.2 {
+                                    game_values.2 = digit;
+                                },
+                                &_ => panic!(),
+                            }
+                        }
+                    }
+                    return (game_number, game_values);
+                })
+                .collect::<HashMap<u32, (u32, u32, u32)>>();
 }
 
 fn part1(input: &str, target_red: u32, target_blue: u32, target_green: u32) -> u32 {
-    let game_map = parse(input);
-
-    let mut total: u32 = 0;
-
-    for entry in game_map.into_iter() {
-        let digits = entry.1;
-        if digits.0 <= target_red && digits.1 <= target_blue && digits.2 <= target_green {
-            total += entry.0;
-        }
-    }
-
-    return total;
+    return parse(input).into_iter()
+                       .map(|entry: (u32, (u32, u32, u32))| {
+                           if entry.1.0 <= target_red && entry.1.1 <= target_blue && entry.1.2 <= target_green {
+                               return entry.0;
+                           } else {
+                               return 0;
+                           }
+                       })
+                       .sum();
 }
 
 fn part2(input: &str) -> u32 {
-    let game_map = parse(input);
-
-    let mut total: u32 = 0;
-
-    for entry in game_map.into_iter() {
-        total += entry.1.0 * entry.1.1 * entry.1.2;
-    }
-
-    return total;
+    return parse(input).into_values().map(|tup: (u32, u32, u32)| tup.0 * tup.1 * tup.2).sum();
 }
 
 fn main() {
