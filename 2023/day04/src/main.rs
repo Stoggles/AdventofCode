@@ -1,7 +1,7 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{BTreeMap};
 
 
-fn parse(input: &str) -> HashMap<u32, (Vec<u32>, Vec<u32>)> {
+fn parse(input: &str) -> BTreeMap<u32, (Vec<u32>, Vec<u32>)> {
     return input.lines()
                 .filter(|line: &&str| !line.is_empty())
                 .map(|line: &str| {
@@ -18,13 +18,13 @@ fn parse(input: &str) -> HashMap<u32, (Vec<u32>, Vec<u32>)> {
 }
 
 fn part1(input: &str) -> u32 {
-    let game_map: HashMap<u32, (Vec<u32>, Vec<u32>)> = parse(input);
+    let game_map: BTreeMap<u32, (Vec<u32>, Vec<u32>)> = parse(input);
 
     let mut score: u32 = 0;
 
     game_map.into_values()
             .for_each(|game_definition: (Vec<u32>, Vec<u32>)| {
-                let matches = play_card(&game_definition);
+                let matches: u32 = play_card(&game_definition);
                 if matches >= 1 {
                     score += 2_u32.pow(matches - 1);
                 }
@@ -34,34 +34,26 @@ fn part1(input: &str) -> u32 {
 }
 
 fn part2(input: &str) -> u32 {
-    let game_map: HashMap<u32, (Vec<u32>, Vec<u32>)> = parse(input);
+    let game_map: BTreeMap<u32, (Vec<u32>, Vec<u32>)> = parse(input);
 
-    let mut queue: VecDeque<u32> = VecDeque::from(game_map.clone().into_keys().collect::<Vec<u32>>());
-    queue.make_contiguous().sort();
+    let mut cards: Vec<(u32, u32)> = Vec::from(
+        game_map.clone()
+                .into_keys()
+                .map(|digit: u32| return (digit, 1))
+                .collect::<Vec<(u32, u32)>>());
 
     let mut card_count: u32 = 0;
 
-    while !queue.is_empty() {
-        let mut duplicates: u32 = 1;
+    for index in 0..cards.len() {
+        let target_card: (u32, u32) = cards.get(index).unwrap().clone();
 
-        let target_card: u32 = queue.pop_front().unwrap();
+        card_count += target_card.1;
 
-        while !queue.is_empty() && queue.front().unwrap() == &target_card {
-            queue.pop_front();
-            duplicates += 1;
+        let score: u32 = play_card(game_map.get(&target_card.0).unwrap());
+
+        for card_number in 1..=score as usize {
+            cards.get_mut(index + card_number).unwrap().1 += target_card.1;
         }
-
-        card_count += duplicates;
-
-        let score: u32 = play_card(game_map.get(&target_card).unwrap());
-
-        for card_number in (target_card + 1..=target_card + score).rev() {
-            for _ in 0 .. duplicates {
-                queue.push_front(card_number);
-            }
-        }
-
-        queue.make_contiguous().sort();
     }
 
     return card_count;
