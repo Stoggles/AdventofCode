@@ -1,0 +1,100 @@
+use std::collections::{HashMap, VecDeque};
+
+
+fn parse(input: &str) -> HashMap<u32, (Vec<u32>, Vec<u32>)> {
+    return input.lines()
+                .filter(|line: &&str| !line.is_empty())
+                .map(|line: &str| {
+                    let game_number_segments: (&str, &str) = line.trim().split_once(":").unwrap();
+                    let game_number: u32 = game_number_segments.0.split_ascii_whitespace().last().unwrap().parse::<u32>().unwrap();
+
+                    let game_definition_segments: (&str, &str) = game_number_segments.1.split_once("|").unwrap();
+
+                    let winning_numbers = game_definition_segments.0.split_ascii_whitespace();
+                    let card_numbers = game_definition_segments.1.split_ascii_whitespace();
+
+                    return(game_number, (winning_numbers.map(|s: &str| s.parse::<u32>().unwrap()).collect(), card_numbers.map(|s: &str| s.parse::<u32>().unwrap()).collect()));
+                }).collect();
+}
+
+fn part1(input: &str) -> u32 {
+    let game_map: HashMap<u32, (Vec<u32>, Vec<u32>)> = parse(input);
+
+    let mut score: u32 = 0;
+
+    game_map.into_values()
+            .for_each(|game_definition: (Vec<u32>, Vec<u32>)| {
+                let matches = play_card(&game_definition);
+                if matches >= 1 {
+                    score += 2_u32.pow(matches - 1);
+                }
+            });
+
+    return score;
+}
+
+fn part2(input: &str) -> u32 {
+    let game_map: HashMap<u32, (Vec<u32>, Vec<u32>)> = parse(input);
+
+    let mut queue: VecDeque<u32> = VecDeque::from(game_map.clone().into_keys().collect::<Vec<u32>>());
+    queue.make_contiguous().sort();
+
+    let mut card_count: u32 = 0;
+
+    while !queue.is_empty() {
+        let mut duplicates: u32 = 1;
+
+        let target_card: u32 = queue.pop_front().unwrap();
+
+        while !queue.is_empty() && queue.front().unwrap() == &target_card {
+            queue.pop_front();
+            duplicates += 1;
+        }
+
+        card_count += duplicates;
+
+        let score: u32 = play_card(game_map.get(&target_card).unwrap());
+
+        for card_number in (target_card + 1..=target_card + score).rev() {
+            for _ in 0 .. duplicates {
+                queue.push_front(card_number);
+            }
+        }
+
+        queue.make_contiguous().sort();
+    }
+
+    return card_count;
+}
+
+fn play_card(game_definition: &(Vec<u32>, Vec<u32>)) -> u32 {
+    let mut matches: u32 = 0;
+
+    game_definition.0.iter().for_each(|matching_number: &u32| {
+        if game_definition.1.contains(matching_number) {
+            matches += 1;
+        }
+    });
+
+    return matches;
+}
+
+fn main() {
+    let test_input: &str = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53\n
+                            Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19\n
+                            Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1\n
+                            Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83\n
+                            Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36\n
+                            Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11\n";
+
+    parse(test_input);
+
+    assert_eq!(part1(test_input), 13);
+
+    assert_eq!(part2(test_input), 30);
+
+    let input: String = std::fs::read_to_string("day04/src/input.txt").expect("Failed reading file");
+
+    println!("⭐️: {}", part1(&input));
+    println!("⭐️: {}", part2(&input));
+}
