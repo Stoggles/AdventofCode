@@ -40,13 +40,9 @@ fn part1(input: &str) -> i64 {
     almanac.0.iter().for_each(|seed: &i64| {
         let mut current_value: i64 = *seed;
         for range_map in &almanac.1 {
-            // println!("map id: {}", map_id);
             for triple in range_map {
-                // println!("triple: {:?}", triple);
                 if current_value >= triple.1 && current_value <= triple.1 + triple.2 {
-                    // println!("found value in map");
                     current_value = current_value + (triple.0 - triple.1);
-                    // println!("current value: {}", current_value);
                     break;
                 }
             };
