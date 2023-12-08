@@ -1,5 +1,4 @@
-use std::cmp;
-use std::collections::HashMap;
+use std::{cmp, collections::HashMap};
 
 
 fn parse(input: &str) -> Vec<Vec<char>> {
@@ -31,7 +30,7 @@ fn part1(input: &str) -> u32 {
             }
 
             'outer: for x_jitter in cmp::max(1, x_coord) - 1 .. cmp::min(map.len(), x_coord + 2) {
-                'inter: for y_jitter in cmp::max(1, y_coord) - 1 .. cmp::min(map[x_coord].len(), y_coord + 2) {
+                for y_jitter in cmp::max(1, y_coord) - 1 .. cmp::min(map[x_coord].len(), y_coord + 2) {
                     if map[x_jitter][y_jitter] != '.' && map[x_jitter][y_jitter].is_ascii_punctuation() {
                         is_part_number = true;
                         break 'outer;
@@ -75,7 +74,7 @@ fn part2(input: &str) -> u32 {
             }
 
             'outer: for x_jitter in cmp::max(1, x_coord) - 1 .. cmp::min(map.len(), x_coord + 2) {
-                'inter: for y_jitter in cmp::max(1, y_coord) - 1 .. cmp::min(map[x_coord].len(), y_coord + 2) {
+                for y_jitter in cmp::max(1, y_coord) - 1 .. cmp::min(map[x_coord].len(), y_coord + 2) {
                     if map[x_jitter][y_jitter] == '*' {
                         is_part_number = true;
                         gear_coords = (x_jitter, y_jitter);
@@ -97,7 +96,9 @@ fn part2(input: &str) -> u32 {
         digits_stack.clear();
     }
 
-    return gear_map.into_values().filter(|vec: &Vec<u32>| vec.len() == 2).map(|vec: Vec<u32>| vec.iter().product::<u32>()).sum::<u32>();
+    return gear_map.into_values().filter(|vec: &Vec<u32>| vec.len() == 2)
+                                 .map(|vec: Vec<u32>| vec.iter().product::<u32>())
+                                 .sum::<u32>();
 }
 
 fn main() {

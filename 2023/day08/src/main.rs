@@ -1,5 +1,7 @@
-use num_integer::Integer;
 use std::collections::HashMap;
+
+use num_integer::Integer;
+
 
 fn parse(input: &str) -> (Vec<char>, HashMap<&str, (&str, &str)>) {
     let mut iter = input.lines()
