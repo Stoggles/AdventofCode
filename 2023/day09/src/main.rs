@@ -29,7 +29,7 @@ fn extrapoldate(dataset: Vec<i32>, backwards: bool) -> i32 {
         return dataset[0];
     } else {
         let differences: Vec<i32> = dataset.windows(2)
-                                           .map(|window: &[i32]| return window[1] - window[0])
+                                           .map(|window: &[i32]| window[1] - window[0])
                                            .collect();
 
         if backwards {
