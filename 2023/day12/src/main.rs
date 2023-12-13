@@ -62,27 +62,26 @@ fn count_combinations(mut string: Vec<char>, mut groups: Vec<u32>, current_group
                         '?' => {
                             match groups.last() {
                                 Some(s) => {
-                                    if *s == current_group_length {
+                                    if *s == current_group_length { // must be '.'
                                         groups.pop();
-                                        string.push('.');
-                                        let r = count_combinations(string, groups, 0, cache);
+                                        let r: u64 = count_combinations(string, groups, 0, cache);
+                                        cache.insert(key, r);
+                                        return r;
+                                    } else if current_group_length > 0 && *s > current_group_length { // must be '#'
+                                        let r: u64 = count_combinations(string, groups, current_group_length + 1, cache);
                                         cache.insert(key, r);
                                         return r;
                                     } else {
-                                        let mut string_1 = string.clone();
-                                        string_1.push('.');
-                                        let r_1 = count_combinations(string_1, groups.clone(), current_group_length, cache);
+                                        let r_1: u64 = count_combinations(string.clone(), groups.clone(), 0, cache);
+                                        let r_2: u64 = count_combinations(string.clone(), groups.clone(), current_group_length + 1, cache);
 
-                                        let mut string_2 = string.clone();
-                                        string_2.push('#');
-                                        let r_2 = count_combinations(string_2, groups.clone(), current_group_length, cache);
+                                        cache.insert(key, r_1 + r_2);
 
                                         return r_1 + r_2;
                                     }
                                 },
                                 None => {
-                                    string.push('.');
-                                    let r = count_combinations(string, groups, 0, cache);
+                                    let r: u64 = count_combinations(string, groups, 0, cache);
                                     cache.insert(key, r);
                                     return r;
                                 },
