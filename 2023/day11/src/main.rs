@@ -52,8 +52,8 @@ fn sum_distances(input: &str, factor: u64) -> u64 {
     let mut total_distance: u64 = 0;
 
     for pair in pairs {
-        let s_1 = pair[0];
-        let s_2 = pair[1];
+        let s_1: (usize, usize) = pair[0];
+        let s_2: (usize, usize) = pair[1];
 
         let mut x_distance: u64 = usize::abs_diff(s_1.0, s_2.0).try_into().unwrap();
         let mut y_distance: u64 = usize::abs_diff(s_1.1, s_2.1).try_into().unwrap();
@@ -77,15 +77,15 @@ fn sum_distances(input: &str, factor: u64) -> u64 {
 }
 
 fn main() {
-    let test_input: &str = "...#......\n
-                            .......#..\n
-                            #.........\n
-                            ..........\n
-                            ......#...\n
-                            .#........\n
-                            .........#\n
-                            ..........\n
-                            .......#..\n
+    let test_input: &str = "...#......
+                            .......#..
+                            #.........
+                            ..........
+                            ......#...
+                            .#........
+                            .........#
+                            ..........
+                            .......#..
                             #...#.....\n";
 
     assert_eq!(sum_distances(test_input, 2), 374);
@@ -95,5 +95,5 @@ fn main() {
     let input: String = std::fs::read_to_string("day11/src/input.txt").expect("Failed reading file");
 
     println!("⭐️: {}", sum_distances(&input, 2));
-    println!("⭐️: {}", sum_distances(&input, 1000000));
+    println!("⭐️: {}", sum_distances(&input, 1_000_000));
 }

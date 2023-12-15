@@ -7,11 +7,9 @@ fn parse(input: &str) -> Vec<(Vec<String>, Vec<String>)> {
     let mut columns: Vec<String> = Vec::new();
 
     for line in input.split('\n') {
-        // println!("{}", line);
         if line.trim().is_empty() {
-            // println!("rows length: {}", rows.len());
             for i in 0..rows[0].len() {
-                columns.push(rows.iter().map(|r| r.chars().nth(i).unwrap()).collect::<String>());
+                columns.push(rows.iter().map(|r: &String| r.chars().nth(i).unwrap()).collect::<String>());
             }
             patterns.push((rows.clone(), columns.clone()));
             rows.clear();
@@ -49,7 +47,7 @@ fn find_mirror_index(lines: Vec<String>, part2: bool) -> (bool, usize) {
 
     'outer: for pair in (0..lines.len()).into_iter().collect::<Vec<usize>>().windows(2) {
         let mut total_differences: u32 = line_differences(&lines[pair[0]], &lines[pair[1]]);
-        let mut index = 0;
+        let mut index: usize = 0;
         while total_differences <= allowed_differences {
             index += 1;
 

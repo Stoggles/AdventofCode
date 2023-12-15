@@ -13,8 +13,8 @@ fn total_combinations(input: &str, factor: usize) -> u64 {
     let records: Vec<(Vec<char>, Vec<u32>)> = parse(input);
 
     return records.into_iter().map(|mut record: (Vec<char>, Vec<u32>)| {
-        let unmod_string = record.0.clone();
-        let unmod_group = record.1.clone();
+        let unmod_string: Vec<char> = record.0.clone();
+        let unmod_group: Vec<u32> = record.1.clone();
         for _ in 0 .. factor - 1 {
             record.0.push('?');
             record.0.extend(unmod_string.iter());
@@ -31,7 +31,7 @@ fn count_combinations(mut string: Vec<char>, mut groups: Vec<u32>, current_group
     let key: String = format!("{:?}{:?}{}", string, groups, current_group_length);
 
     match cache.get(&key) {
-        Some(v) => { return *v },
+        Some(value) => { return *value },
         None => {
             match string.pop() {
                 Some(c) => {
@@ -46,7 +46,7 @@ fn count_combinations(mut string: Vec<char>, mut groups: Vec<u32>, current_group
                                     } },
                                 None => { },
                             }
-                            let r = count_combinations(string, groups, 0, cache);
+                            let r: u64 = count_combinations(string, groups, 0, cache);
                             cache.insert(key, r);
                             return r;
                         },
@@ -55,7 +55,7 @@ fn count_combinations(mut string: Vec<char>, mut groups: Vec<u32>, current_group
                                 Some(s) => { if *s == current_group_length { return 0; } },
                                 None => { return 0 },
                             }
-                            let r = count_combinations(string, groups, current_group_length + 1, cache);
+                            let r: u64 = count_combinations(string, groups, current_group_length + 1, cache);
                             cache.insert(key, r);
                             return r;
                         }
@@ -110,15 +110,15 @@ fn count_combinations(mut string: Vec<char>, mut groups: Vec<u32>, current_group
 }
 
 fn main() {
-    let test_input: &str = "???.### 1,1,3\n
-                            .??..??...?##. 1,1,3\n
-                            ?#?#?#?#?#?#?#? 1,3,1,6\n
-                            ????.#...#... 4,1,1\n
-                            ????.######..#####. 1,6,5\n
+    let test_input: &str = "???.### 1,1,3
+                            .??..??...?##. 1,1,3
+                            ?#?#?#?#?#?#?#? 1,3,1,6
+                            ????.#...#... 4,1,1
+                            ????.######..#####. 1,6,5
                             ?###???????? 3,2,1\n";
 
     assert_eq!(total_combinations(test_input, 1), 21);
-    assert_eq!(total_combinations(test_input, 5), 525152);
+    assert_eq!(total_combinations(test_input, 5), 525_152);
 
     let input: String = std::fs::read_to_string("day12/src/input.txt").expect("Failed reading file");
 
