@@ -1,4 +1,5 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
+
 
 fn parse(input: &str) -> Vec<&str> {
     return input.trim().split(",").collect();
@@ -7,26 +8,26 @@ fn parse(input: &str) -> Vec<&str> {
 fn part_1(input: &str) -> u32 {
     let instructions: Vec<&str> = parse(input);
 
-    return instructions.iter().map(|s| hash(s)).sum()
+    return instructions.iter().map(|s| hash(s) as u32).sum()
 }
 
 fn part_2(input: &str) -> u32 {
     let instructions: Vec<&str> = parse(input);
 
-    let mut map: HashMap<u32, Vec<(&str, u32)>> = HashMap::new();
+    let mut map: HashMap<u8, Vec<(&str, u8)>> = HashMap::new();
 
     'outer: for instruction in instructions {
-        let command: (&str, &str) = instruction.split_once(|c| c == '=' || c == '-').unwrap();
-        let box_id: u32 = hash(command.0);
+        let command: (&str, &str) = instruction.split_once(|c: char| c == '=' || c == '-').unwrap();
+        let box_id: u8 = hash(command.0);
         if command.1.is_empty() {
             match map.get_mut(&box_id) {
                 Some(b) => {
-                    b.retain(|lens| lens.0 != command.0);
+                    b.retain(|lens: &(&str, u8)| lens.0 != command.0);
                 },
                 None => {},
             }
         } else {
-            let focal_length: u32 = command.1.parse::<u32>().unwrap();
+            let focal_length: u8 = command.1.parse::<u8>().unwrap();
             match map.get_mut(&box_id) {
                 Some(b) => {
                     for lens in b.iter_mut() {
@@ -45,19 +46,13 @@ fn part_2(input: &str) -> u32 {
     }
 
     return map.iter().map(|(k , v)| {
-        return (0..v.len()).map(|i| (k + 1) * (i as u32 + 1) * v[i].1)
+        return (0..v.len()).map(|i: usize| (k + 1) as u32 * (i + 1) as u32 * v[i].1 as u32)
                            .sum::<u32>();
     }).sum::<u32>();
 }
 
-fn hash(input: &str) -> u32 {
-    let mut accumulator: u32 = 0;
-
-    input.chars().for_each(|c: char| {
-        accumulator = ((accumulator + c as u32) * 17) % 256;
-    });
-
-    return accumulator;
+fn hash(input: &str) -> u8 {
+    return input.bytes().fold(0, |a: u8, c: u8| a.wrapping_add(c).wrapping_mul(17));
 }
 
 fn main() {
