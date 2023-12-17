@@ -8,7 +8,7 @@ fn parse(input: &str) -> Vec<&str> {
 fn part_1(input: &str) -> u32 {
     let instructions: Vec<&str> = parse(input);
 
-    return instructions.iter().map(|s| hash(s) as u32).sum()
+    return instructions.iter().map(|s: &&str| hash(s) as u32).sum()
 }
 
 fn part_2(input: &str) -> u32 {
@@ -56,7 +56,7 @@ fn hash(input: &str) -> u8 {
 }
 
 fn main() {
-    let test_input: &str = "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7";
+    let test_input: &str = "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7\n";
 
     assert_eq!(hash("HASH"), 52);
     assert_eq!(part_1(test_input), 1320);
