@@ -11,9 +11,9 @@ fn calculate_lagoon_volume(input: &str, part_2: bool) -> u64 {
     let instructions: Vec<(char, i64, &str)> = parse(input);
 
     let mut verticies: Vec<(i64, i64)> = Vec::new();
-    let mut current_location: (i64, i64) = (0, 0);
-
     let mut boundry_cells: u64 = 0;
+
+    let mut current_location: (i64, i64) = (0, 0);
 
     for instruction in instructions {
         let distance: i64;
@@ -37,14 +37,13 @@ fn calculate_lagoon_volume(input: &str, part_2: bool) -> u64 {
                 'R' => { current_location = (current_location.0 + distance, current_location.1); }
                 _   => { panic!() },
             }
-
         }
 
-        boundry_cells += distance as u64;
         verticies.push(current_location);
+        boundry_cells += distance as u64;
     }
 
-    let shoelace_area: u64 = (verticies.windows(2).fold(0, |a: i64, coords: &[(i64, i64)]| { a + (coords[0].0 * coords[1].1) - (coords[0].1 * coords[1].0) }) / 2) as u64;
+    let shoelace_area: u64 = (verticies.windows(2).fold(0, |a: i64, verts: &[(i64, i64)]| { a + (verts[0].0 * verts[1].1) - (verts[0].1 * verts[1].0) }) / 2) as u64;
     let interior_cells: u64 = shoelace_area - (boundry_cells / 2) + 1;
     return interior_cells + boundry_cells;
 }
