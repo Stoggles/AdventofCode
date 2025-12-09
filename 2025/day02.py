@@ -1,5 +1,3 @@
-import re
-
 def parse(data: List[str]) -> List[tuple]:
     return [(int(range.split('-')[0]),int(range.split('-')[1])) for range in data.readline().split(',')]
 
@@ -15,10 +13,10 @@ def part1(ranges: List[tuple]) -> int:
 
     return invalid_id_sum
 
-def segment_list(list: List, segment_size: int) -> List[List]:
-    return [list[x:x + segment_size] for x in range(0, len(list), segment_size)]
+def segment_list(value: List, segment_size: int) -> List[List]:
+    return [value[x:x + segment_size] for x in range(0, len(value), segment_size)]
 
-def part2(data: List[str]) -> int:
+def part2(ranges: List[str]) -> int:
     invalid_id_sum = 0
 
     for pair in ranges:
