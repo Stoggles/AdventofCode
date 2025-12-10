@@ -9,3 +9,4 @@ Languages used:
 * 2018: Swift
 * 2019: Rust
 * 2023: Rust (again)
+* 2025: Python (again)

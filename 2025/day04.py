@@ -1,56 +1,54 @@
-from collections import defaultdict
-
-def parse(data: List[str]) -> dict[(int, int), int]:
-    grid = dict()
+def parse(data: list[str]) -> set[(int, int)]:
+    grid = set()
 
     line_no = 0
     for line in data.readlines():
         char_no = 0
         for char in line:
             if char == '@':
-                grid[(char_no, line_no)] = 1
+                grid.add((char_no, line_no))
             char_no += 1
         line_no += 1
 
     return grid
 
-def part1(grid: dict[(int, int), int]) -> int:
+def part1(grid: set[(int, int)]) -> int:
     rolls = 0
 
-    for key in grid.keys():
+    for coord in grid:
         adjacent_count = 0
         for x in range(-1, 2, 1):
             for y in range(-1, 2, 1):
                 if x == 0 and y == 0:
                     continue
-                adjacent_count += grid.get((key[0] + x, key[1] + y)) or 0
+                adjacent_count += 1 if (coord[0] + x, coord[1] + y) in grid else 0
         rolls += 1 if adjacent_count < 4 else 0
 
     return rolls
 
-def part2(grid: dict[(int, int), int]) -> int:
+def part2(grid: set[(int, int)]) -> int:
     rolls_removed = 0
 
     while True:
-        to_be_removed = list()
+        to_be_removed = []
 
-        for key in grid.keys():
+        for coord in grid:
             adjacent_count = 0
             for x in range(-1, 2, 1):
                 for y in range(-1, 2, 1):
                     if x == 0 and y == 0:
                         continue
-                    adjacent_count += grid.get((key[0] + x, key[1] + y)) or 0
+                    adjacent_count += 1 if (coord[0] + x, coord[1] + y) in grid else 0
             if adjacent_count < 4:
-                to_be_removed.append(key)
+                to_be_removed.append(coord)
 
         for roll in to_be_removed:
-            grid.pop(roll)
+            grid.remove(roll)
 
         if len(to_be_removed) == 0:
             break
-        else:
-            rolls_removed += len(to_be_removed)
+
+        rolls_removed += len(to_be_removed)
 
     return rolls_removed
 
